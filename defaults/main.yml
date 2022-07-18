@@ -1,0 +1,26 @@
+---
+# https://docs.ansible.com/ansible/2.9/modules/apt_module.html#parameter-upgrade
+system_cleanup_upgrade_type: safe
+
+# run `docker system prune -a -f --volumes` to remove unused images and containers
+system_cleanup_docker: true
+
+# remove old certbot logs
+system_cleanup_matrix_ssl: true
+
+# run `journalctl --vacuum-time=7d` to remove old logs
+system_cleanup_logs: true
+system_cleanup_logs_retention: 7d
+system_cleanup_logs_calendar: "*-*-* 04:15:00"
+
+# remove synapse media store thumbnails (they will be regenerated on request)
+system_cleanup_matrix_thumbnails: true
+
+# purge-old-kernels
+system_cleanup_kernels: false
+
+# purge-old-kernels script
+system_cleanup_kernels_script: /usr/local/bin/purge-old-kernels
+
+# purge-old-kernels --keep param
+system_cleanup_kernels_keep: 1
