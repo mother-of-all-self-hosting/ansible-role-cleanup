@@ -1,34 +1,40 @@
 ---
-- import_tasks: packages.yml
+
+- block:
+    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/packages.yml"
   tags:
     - setup-all
     - setup-cleanup
     - install-all
     - install-cleanup
 
-- import_tasks: kernels.yml
-  when: system_cleanup_kernels | bool
+- block:
+    - when: system_cleanup_kernels | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/kernels.yml"
   tags:
     - setup-all
     - setup-cleanup
     - install-all
     - install-cleanup
 
-- import_tasks: logs.yml
+- block:
+    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/logs.yml"
   tags:
     - setup-all
     - setup-cleanup
     - install-all
     - install-cleanup
 
-- import_tasks: docker.yml
+- block:
+    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/docker.yml"
   tags:
     - setup-all
     - setup-cleanup
     - install-all
     - install-cleanup
 
-- import_tasks: matrix.yml
+- block:
+    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/matrix.yml"
   tags:
     - setup-all
     - setup-cleanup
