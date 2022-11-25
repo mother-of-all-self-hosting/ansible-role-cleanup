@@ -2,25 +2,25 @@
 - import_tasks: packages.yml
   tags:
     - setup-all
-    - system-cleanup
+    - setup-cleanup
 
 - import_tasks: kernels.yml
   when: system_cleanup_kernels | bool
   tags:
     - setup-all
-    - system-cleanup
+    - setup-cleanup
 
 - import_tasks: logs.yml
   tags:
     - setup-all
-    - system-cleanup
+    - setup-cleanup
 
 - import_tasks: docker.yml
   tags:
     - setup-all
-    - system-cleanup
+    - setup-cleanup
 
 - import_tasks: matrix.yml
   tags:
     - setup-all
-    - system-cleanup
+    - setup-cleanup
