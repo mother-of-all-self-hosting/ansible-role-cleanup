@@ -12,7 +12,7 @@
 
 - name: Ensure postgres daily backups are removed
   ansible.builtin.file:
-    path: "{{ matrix_postgres_backup_path }}/daily/"
+    path: "{{ devture_postgres_backup_path }}/daily/"
     state: absent
   ignore_errors: true
   tags:
