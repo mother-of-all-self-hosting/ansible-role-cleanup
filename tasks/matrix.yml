@@ -9,12 +9,3 @@
     - url_cache_thumbnails
   when: system_cleanup_matrix_thumbnails | bool and matrix_synapse_enabled | bool and matrix_synapse_media_store_path is defined
   ignore_errors: true
-
-- name: Ensure postgres daily backups are removed
-  ansible.builtin.file:
-    path: "{{ devture_postgres_backup_base_path }}/daily/"
-    state: absent
-  ignore_errors: true
-  tags:
-    - never
-    - backups-cleanup

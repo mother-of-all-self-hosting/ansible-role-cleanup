@@ -40,3 +40,12 @@
     - setup-cleanup
     - install-all
     - install-cleanup
+
+- block:
+    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/postgres.yml"
+  tags:
+    - setup-all
+    - setup-cleanup
+    - install-all
+    - install-cleanup
+    - backups-cleanup
