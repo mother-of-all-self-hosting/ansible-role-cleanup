@@ -5,7 +5,6 @@
   tags:
     - setup-all
     - setup-cleanup
-    - install-all
     - install-cleanup
 
 - block:
@@ -14,7 +13,6 @@
   tags:
     - setup-all
     - setup-cleanup
-    - install-all
     - install-cleanup
 
 - block:
@@ -22,7 +20,6 @@
   tags:
     - setup-all
     - setup-cleanup
-    - install-all
     - install-cleanup
 
 - block:
@@ -30,7 +27,6 @@
   tags:
     - setup-all
     - setup-cleanup
-    - install-all
     - install-cleanup
 
 - block:
@@ -38,14 +34,15 @@
   tags:
     - setup-all
     - setup-cleanup
-    - install-all
     - install-cleanup
 
-- block:
-    - ansible.builtin.include_tasks: "{{ role_path }}/tasks/postgres.yml"
+- name: Ensure paths are removed
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ system_cleanup_paths }}"
+  ignore_errors: true # ansible (!) behavior is inconsistent, depending on the target server's distro, so that's a workaround
   tags:
     - setup-all
     - setup-cleanup
-    - install-all
     - install-cleanup
-    - backups-cleanup

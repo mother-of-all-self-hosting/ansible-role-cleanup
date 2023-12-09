@@ -1,7 +1,0 @@
----
-- name: Ensure postgres daily backups are removed
-  ansible.builtin.file:
-    path: "{{ devture_postgres_backup_base_path }}/daily/"
-    state: absent
-  ignore_errors: true
-  when: "'backups-cleanup' in ansible_run_tags"
