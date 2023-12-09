@@ -1,4 +1,6 @@
 ---
+# Debian only
+
 - name: Ensure purge-old-kernels is installed
   ansible.builtin.copy:
     src: "{{ role_path }}/files/purge-old-kernels"

@@ -1,7 +1,4 @@
 ---
-# https://docs.ansible.com/ansible/2.9/modules/apt_module.html#parameter-upgrade
-system_cleanup_upgrade_type: safe
-
 # run `docker system prune -a -f --volumes` to remove unused images and containers
 system_cleanup_docker: true
 
@@ -13,7 +10,11 @@ system_cleanup_logs_calendar: "*-*-* 04:15:00"
 # list of absolute paths to remove
 system_cleanup_paths: []
 
-# purge-old-kernels (ubuntu only)
+# Debian only
+system_cleanup_apt: true
+system_cleanup_apt_upgrade_type: safe
+
+# purge-old-kernels (debian only)
 system_cleanup_kernels: false
 
 # purge-old-kernels script
