@@ -1,9 +1,9 @@
 ---
 # run `docker system prune -a -f --volumes` to remove unused images and containers
-system_cleanup_docker: true
+system_cleanup_docker: false
 
 # run `journalctl --vacuum-time=7d` to remove old logs
-system_cleanup_logs: true
+system_cleanup_logs: false
 system_cleanup_logs_retention: 7d
 system_cleanup_logs_calendar: "*-*-* 04:15:00"
 
@@ -11,7 +11,7 @@ system_cleanup_logs_calendar: "*-*-* 04:15:00"
 system_cleanup_paths: []
 
 # Debian only
-system_cleanup_apt: true
+system_cleanup_apt: false
 system_cleanup_apt_upgrade_type: safe
 
 # purge-old-kernels (debian only)
