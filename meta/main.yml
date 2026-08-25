@@ -2,6 +2,8 @@
 galaxy_info:
   author: etke.cc
   company: etke.cc
+  role_name: cleanup
+  namespace: mash
   description: system/cleanup role
   platforms:
     - name: Debian

@@ -1,5 +1,6 @@
 <!--
 SPDX-FileCopyrightText: 2022 etke.cc
+SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
@@ -9,6 +10,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 System cleanup role
 
 Refer to `defaults/main.yml` to get the list of options
+
+Note that the Docker pruning enabled by `system_cleanup_docker` only runs when `start` is among the tags the playbook was invoked with — which is what mash-playbook's `just setup-all` (`--tags=setup-all,start`) and `just install-all` (`--tags=install-all,start`) pass. A run without that tag, such as `just install-service <name>`, installs and schedules everything else but prunes nothing.
+
+## Testing
+
+The role has a [Molecule](https://ansible.readthedocs.io/projects/molecule/) test suite. See [`molecule/README.md`](./molecule/README.md) for what it covers, what it deliberately does not, and how to run it.
 
 ## Development
 
