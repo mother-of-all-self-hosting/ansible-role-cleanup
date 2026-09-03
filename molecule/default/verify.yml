@@ -333,7 +333,6 @@
               - "apt: the archive cache was emptied"
               - "kernels: {{ cleanup_molecule_kernels_version.stdout }} at {{ system_cleanup_kernels_script }}"
               - "docker: pruning skipped, as the run carried no 'start' tag"
-              - "CLEANUP VERIFICATION COMPLETE"
       rescue:
         - name: Retrieve the state of the journald autovacuum units
           ansible.builtin.command:
