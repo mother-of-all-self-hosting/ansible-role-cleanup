@@ -325,7 +325,7 @@
               `system_cleanup_docker` is on, the run tags are {{ ansible_run_tags }} and there is no
               Docker on this host - the pruning tasks were skipped rather than failing
 
-        - name: Report what was verified
+        - name: Show Cleanup verification summary
           ansible.builtin.debug:
             msg:
               - "journald autovacuum: --vacuum-time={{ system_cleanup_logs_retention }}, OnCalendar={{ system_cleanup_logs_calendar }}, timer active"

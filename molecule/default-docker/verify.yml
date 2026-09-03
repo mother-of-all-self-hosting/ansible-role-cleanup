@@ -192,7 +192,7 @@
               are preserved.
             success_msg: "{{ cleanup_molecule_network }} is still there, as promised"
 
-        - name: Report what was verified
+        - name: Show Cleanup verification summary
           vars:
             cleanup_molecule_anonymous_volume: "{{ cleanup_molecule_anonymous_volume_slurp.content | b64decode | trim }}"
           ansible.builtin.debug:
