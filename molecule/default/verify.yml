@@ -275,7 +275,7 @@
               0775, and the role's default path
               ({{ cleanup_defaults.system_cleanup_kernels_script }}) was left alone
 
-        - name: Ask the installed script for its version
+        - name: Query the version of the installed script
           ansible.builtin.command:
             cmd: "{{ system_cleanup_kernels_script }} --version"
           register: cleanup_molecule_kernels_version
