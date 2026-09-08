@@ -107,7 +107,7 @@
 
         - name: Read the journal of the journald autovacuum service
           ansible.builtin.command:
-            cmd: journalctl --no-pager --unit=systemd-journald-autovacuum.service
+            cmd: journalctl --no-pager --output=cat --unit=systemd-journald-autovacuum.service
           register: cleanup_molecule_service_journal
           changed_when: false
 
