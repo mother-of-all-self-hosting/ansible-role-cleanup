@@ -19,7 +19,7 @@
   become: true
   gather_facts: false
   tasks:
-    - name: Verify that the cleanup role pruned what it should have
+    - name: Verify that the cleanup role works
       block:
         - name: Read the identifier of the anonymous volume prepare.yml left behind
           ansible.builtin.slurp:

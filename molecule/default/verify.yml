@@ -20,7 +20,7 @@
   become: true
   gather_facts: true
   tasks:
-    - name: Verify that the cleanup role did its work
+    - name: Verify that the cleanup role works
       block:
         # The role is not included in this playbook, so its defaults are not in
         # scope. Reading defaults/main.yml directly ties the version assertion
