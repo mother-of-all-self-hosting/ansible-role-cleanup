@@ -24,9 +24,6 @@
     - name: Ensure Docker is installed for the cleanup Docker Molecule tests preparation
       ansible.builtin.include_role:
         name: ansible-role-docker
-      vars:
-        docker_daemon_options:
-          storage-driver: vfs
 
     # A precondition. Everything below is written as "this object was here and
     # is gone" or "this object was here and still is", which only means anything
