@@ -50,11 +50,22 @@
       loop_control:
         label: "{{ item.name }}"
 
-    - name: Ensure a stand-in purge-old-kernels is installed
+    # One at the role's default path, and one where earlier versions of the
+    # role installed it.
+    - name: Ensure the directory of the role's default purge-old-kernels path exists
+      ansible.builtin.file:
+        path: /srv/molecule-cleanup/bin
+        state: directory
+        mode: "0750"
+
+    - name: Ensure stand-in purge-old-kernels scripts are installed
       ansible.builtin.copy:
-        dest: /usr/local/bin/purge-old-kernels
+        dest: "{{ item }}"
         content: "#!/bin/sh\n"
         mode: "0775"
+      loop:
+        - /srv/molecule-cleanup/bin/purge-old-kernels
+        - /usr/local/bin/purge-old-kernels
 
     - name: Ensure the stand-in journald autovacuum timer is enabled and started
       ansible.builtin.systemd_service:

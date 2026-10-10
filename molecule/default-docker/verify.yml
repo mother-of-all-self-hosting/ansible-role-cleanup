@@ -243,18 +243,23 @@
 
         - name: Look for purge-old-kernels
           ansible.builtin.stat:
-            path: /usr/local/bin/purge-old-kernels
-          register: cleanup_molecule_kernels_script
+            path: "{{ item }}"
+          register: cleanup_molecule_kernels_scripts
+          loop:
+            - /srv/molecule-cleanup/bin/purge-old-kernels
+            - /usr/local/bin/purge-old-kernels
 
-        # prepare.yml installed a stand-in at the role's default path, and
-        # `system_cleanup_kernels` is off in this scenario.
-        - name: Assert that purge-old-kernels was removed
+        # prepare.yml installed stand-ins at the role's default path and where
+        # earlier versions of the role installed it, and `system_cleanup_kernels`
+        # is off in this scenario.
+        - name: Assert that purge-old-kernels was removed from both paths
           ansible.builtin.assert:
-            that: not cleanup_molecule_kernels_script.stat.exists
+            that: cleanup_molecule_kernels_scripts.results | selectattr('stat.exists') | list | length == 0
             fail_msg: >-
-              /usr/local/bin/purge-old-kernels is still there. With `system_cleanup_kernels` off,
-              the role should have removed it.
-            success_msg: "/usr/local/bin/purge-old-kernels was removed"
+              Still present: {{ cleanup_molecule_kernels_scripts.results | selectattr('stat.exists') | map(attribute='item') | list }}.
+              With `system_cleanup_kernels` off, the role should have removed it from its path, and it always
+              removes it from where earlier versions of the role installed it.
+            success_msg: "purge-old-kernels was removed from both paths"
 
         - name: Show the Cleanup verification summary
           vars:

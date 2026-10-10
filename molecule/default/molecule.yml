@@ -70,7 +70,7 @@ provisioner:
         system_cleanup_apt_upgrade_type: "no"
 
         system_cleanup_kernels: true
-        # The role's default is /usr/local/bin/purge-old-kernels. verify.yml
+        # The role's default is under `system_cleanup_bin_path`. verify.yml
         # asserts the script is at the path named here and that nothing was
         # written to the default path.
         system_cleanup_kernels_script: /usr/local/bin/molecule-purge-old-kernels

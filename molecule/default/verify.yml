@@ -245,9 +245,18 @@
             checksum_algorithm: sha256
           register: cleanup_molecule_kernels_script
 
+        # The role's default is built from other variables of the role, which
+        # are only loaded under `cleanup_defaults` here.
+        - name: Resolve the role's default path of the purge-old-kernels script
+          vars:
+            system_cleanup_base_path: "{{ cleanup_defaults.system_cleanup_base_path }}"
+            system_cleanup_bin_path: "{{ cleanup_defaults.system_cleanup_bin_path }}"
+          ansible.builtin.set_fact:
+            cleanup_molecule_kernels_script_default: "{{ cleanup_defaults.system_cleanup_kernels_script }}"
+
         - name: Look for the purge-old-kernels script at the role's default path
           ansible.builtin.stat:
-            path: "{{ cleanup_defaults.system_cleanup_kernels_script }}"
+            path: "{{ cleanup_molecule_kernels_script_default }}"
           register: cleanup_molecule_kernels_script_default_path
 
         - name: Assert that the script was installed where the scenario asked for it, and nowhere else
@@ -262,11 +271,11 @@
             fail_msg: >-
               {{ system_cleanup_kernels_script }} is not this repository's files/purge-old-kernels
               at mode 0775, or the role also wrote to its default path of
-              {{ cleanup_defaults.system_cleanup_kernels_script }}
+              {{ cleanup_molecule_kernels_script_default }}
             success_msg: >-
               files/purge-old-kernels is installed at {{ system_cleanup_kernels_script }} at mode
               0775, and the role's default path
-              ({{ cleanup_defaults.system_cleanup_kernels_script }}) was left alone
+              ({{ cleanup_molecule_kernels_script_default }}) was left alone
 
         - name: Query the version of the installed script
           ansible.builtin.command:

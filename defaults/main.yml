@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-# Where the role keeps the files it installs (currently only those of the Docker cleanup).
+# Where the role keeps the files it installs.
 # Playbooks typically override the base path to live next to their other services (e.g. `/mash/system-cleanup`).
 system_cleanup_base_path: /system-cleanup
 system_cleanup_bin_path: "{{ system_cleanup_base_path }}/bin"
@@ -34,7 +34,8 @@ system_cleanup_apt_upgrade_type: safe
 system_cleanup_kernels: false
 
 # purge-old-kernels script
-system_cleanup_kernels_script: /usr/local/bin/purge-old-kernels
+# (earlier versions of this role installed it at /usr/local/bin/purge-old-kernels, from where it gets removed)
+system_cleanup_kernels_script: "{{ system_cleanup_bin_path }}/purge-old-kernels"
 
 # purge-old-kernels --keep param
 system_cleanup_kernels_keep: 1
