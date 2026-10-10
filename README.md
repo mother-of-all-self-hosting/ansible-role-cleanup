@@ -11,7 +11,9 @@ System cleanup role
 
 Refer to `defaults/main.yml` to get the list of options
 
-Note that the Docker pruning enabled by `system_cleanup_docker` is tagged `start`, so it runs along with (re)starting services — which is what mash-playbook's `just setup-all` (`--tags=setup-all,start`) and `just install-all` (`--tags=install-all,start`) do. A run whose tags do not include `start`, such as `just install-service <name>` (`--tags=install-<name>,start-group`), installs and schedules everything else but prunes nothing.
+`system_cleanup_docker` installs a script (`/system-cleanup/bin/cleanup-docker` by default, see `system_cleanup_base_path`) which removes stopped containers, unused images and unused anonymous volumes. You can run it by hand at any time.
+
+Note that the Ansible run of that script is tagged `start`, so it runs along with (re)starting services — which is what mash-playbook's `just setup-all` (`--tags=setup-all,start`) and `just install-all` (`--tags=install-all,start`) do. A run whose tags do not include `start`, such as `just install-service <name>` (`--tags=install-<name>,start-group`), installs and schedules everything else but prunes nothing.
 
 ## Development
 

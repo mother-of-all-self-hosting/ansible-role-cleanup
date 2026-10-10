@@ -45,6 +45,10 @@ provisioner:
         # variable with the tag missing, and proves nothing gets pruned then.
         system_cleanup_docker: true
 
+        # Not the role's default (/system-cleanup), so that verify.yml can tell
+        # that the script went where this variable says.
+        system_cleanup_base_path: /srv/molecule-cleanup
+
         # The default scenario covers the journald autovacuum units being
         # installed. Here they are turned off: prepare.yml installs and enables
         # stand-ins for them, and verify.yml asserts that the role removed them.

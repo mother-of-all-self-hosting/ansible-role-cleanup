@@ -61,7 +61,7 @@ The scenario also runs with `system_cleanup_docker` turned on, on a host that ha
 
 ### `default-docker`
 
-The destructive half: `system_cleanup_docker` with the `start` tag actually present, which is how [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) invokes the role (`--tags=setup-all,start`).
+The destructive half: `system_cleanup_docker` with the `start` tag actually present, which is how [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) invokes the role (`--tags=setup-all,start`). The role's files are moved to a non-default base path, and the cleanup script is asserted to be installed there.
 
 It also covers the role uninstalling what it no longer should have: `system_cleanup_logs` and `system_cleanup_kernels` are off, and stand-ins for the journald autovacuum units (installed and enabled) and for `purge-old-kernels`, put in place before the role runs, are asserted to be stopped, disabled and removed afterwards.
 

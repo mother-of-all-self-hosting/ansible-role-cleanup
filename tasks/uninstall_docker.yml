@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+---
+- name: Ensure the Docker cleanup script does not exist
+  ansible.builtin.file:
+    path: "{{ system_cleanup_bin_path }}/cleanup-docker"
+    state: absent

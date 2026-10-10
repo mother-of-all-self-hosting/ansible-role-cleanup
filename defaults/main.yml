@@ -3,7 +3,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-# run docker prune commands to remove unused containers, images, and volumes (networks are preserved)
+# Where the role keeps the files it installs (currently only those of the Docker cleanup).
+# Playbooks typically override the base path to live next to their other services (e.g. `/mash/system-cleanup`).
+system_cleanup_base_path: /system-cleanup
+system_cleanup_bin_path: "{{ system_cleanup_base_path }}/bin"
+
+# Clean up Docker: remove stopped containers, unused images and unused anonymous volumes
+# (`docker container prune`, `docker image prune -a`, `docker volume prune`). Networks and named volumes are preserved.
+#
+# This installs a script (`cleanup-docker` in `system_cleanup_bin_path`), which runs:
+# - during Ansible runs with the `start` tag (e.g. `--tags=setup-all,start`)
+# - whenever you run it by hand
 system_cleanup_docker: false
 
 # install a systemd timer which runs `journalctl --vacuum-time=7d` to remove old logs

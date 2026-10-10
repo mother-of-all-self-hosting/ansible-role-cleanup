@@ -17,6 +17,10 @@
       when: system_cleanup_kernels | bool and ansible_facts['os_family'] == "Debian"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install_kernels.yml"
 
+    - name: Install the Docker cleanup
+      when: system_cleanup_docker | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install_docker.yml"
+
 - name: Perform cleanup uninstallation tasks
   tags:
     - setup-all
@@ -29,6 +33,10 @@
     - name: Uninstall purge-old-kernels
       when: not system_cleanup_kernels | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_kernels.yml"
+
+    - name: Uninstall the Docker cleanup
+      when: not system_cleanup_docker | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_docker.yml"
 
 - name: Perform cleanup tasks
   tags:

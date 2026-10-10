@@ -46,6 +46,21 @@
 
         # The list of `docker ... inspect` invocations that found their object.
         # Membership in it is what every assertion below is phrased in terms of.
+        - name: Look for the Docker cleanup script
+          ansible.builtin.stat:
+            path: /srv/molecule-cleanup/bin/cleanup-docker
+          register: cleanup_molecule_docker_script
+
+        - name: Assert that the Docker cleanup script is installed under the configured base path
+          ansible.builtin.assert:
+            that:
+              - cleanup_molecule_docker_script.stat.exists
+              - cleanup_molecule_docker_script.stat.executable
+            fail_msg: >-
+              /srv/molecule-cleanup/bin/cleanup-docker is missing or not executable, although
+              `system_cleanup_base_path` is /srv/molecule-cleanup
+            success_msg: "/srv/molecule-cleanup/bin/cleanup-docker is installed"
+
         - name: Index which of those commands found their object
           ansible.builtin.set_fact:
             cleanup_molecule_found: "{{ cleanup_molecule_docker_after.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list }}"

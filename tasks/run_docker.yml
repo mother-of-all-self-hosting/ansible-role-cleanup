@@ -1,13 +1,15 @@
 # SPDX-FileCopyrightText: 2022 etke.cc
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
-- name: Ensure unused docker containers are removed
-  ansible.builtin.command: docker container prune -f
+- name: Ensure Docker is cleaned up
+  ansible.builtin.command:
+    cmd: "{{ system_cleanup_bin_path }}/cleanup-docker"
+  register: system_cleanup_docker_result
+  changed_when: system_cleanup_docker_result.stdout is search('^Removed ', multiline=True)
 
-- name: Ensure unused docker images are removed
-  ansible.builtin.command: docker image prune -a -f
-
-- name: Ensure unused docker volumes are removed
-  ansible.builtin.command: docker volume prune -f
+- name: Show what the Docker cleanup did
+  ansible.builtin.debug:
+    msg: "{{ system_cleanup_docker_result.stdout_lines }}"
