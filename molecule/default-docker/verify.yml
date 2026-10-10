@@ -226,6 +226,21 @@
               the role should have stopped, disabled and removed the units.
             success_msg: "The journald autovacuum units were stopped, disabled and removed"
 
+        - name: Look for purge-old-kernels
+          ansible.builtin.stat:
+            path: /usr/local/bin/purge-old-kernels
+          register: cleanup_molecule_kernels_script
+
+        # prepare.yml installed a stand-in at the role's default path, and
+        # `system_cleanup_kernels` is off in this scenario.
+        - name: Assert that purge-old-kernels was removed
+          ansible.builtin.assert:
+            that: not cleanup_molecule_kernels_script.stat.exists
+            fail_msg: >-
+              /usr/local/bin/purge-old-kernels is still there. With `system_cleanup_kernels` off,
+              the role should have removed it.
+            success_msg: "/usr/local/bin/purge-old-kernels was removed"
+
         - name: Show the Cleanup verification summary
           vars:
             cleanup_molecule_anonymous_volume: "{{ cleanup_molecule_anonymous_volume_slurp.content | b64decode | trim }}"
@@ -235,7 +250,7 @@
               - "kept: container {{ cleanup_molecule_running_container }} (running), image {{ cleanup_molecule_docker_image }}"
               - "kept: volumes {{ cleanup_molecule_used_volume }} (with its contents) and {{ cleanup_molecule_named_volume }}"
               - "kept: network {{ cleanup_molecule_network }}"
-              - "uninstalled: the journald autovacuum units"
+              - "uninstalled: the journald autovacuum units and purge-old-kernels"
 
       rescue:
         - name: Retrieve what the Docker daemon holds

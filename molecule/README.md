@@ -63,7 +63,7 @@ The scenario also runs with `system_cleanup_docker` turned on, on a host that ha
 
 The destructive half: `system_cleanup_docker` with the `start` tag actually present, which is how [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) invokes the role (`--tags=setup-all,start`).
 
-It also covers the role uninstalling what it no longer should have: `system_cleanup_logs` is off, and stand-ins for the journald autovacuum units, installed and enabled before the role runs, are asserted to be stopped, disabled and removed afterwards.
+It also covers the role uninstalling what it no longer should have: `system_cleanup_logs` and `system_cleanup_kernels` are off, and stand-ins for the journald autovacuum units (installed and enabled) and for `purge-old-kernels`, put in place before the role runs, are asserted to be stopped, disabled and removed afterwards.
 
 An empty Docker daemon is filled with a running container, a stopped one, an image nothing uses, the image the running container does use, a named volume in use, an unused named volume, an anonymous volume nothing references any more, and a network attached to nothing. After the role has run, the stopped container, the unused image and the anonymous volume are gone, and everything else — including the contents of the volume in use — is still there.
 

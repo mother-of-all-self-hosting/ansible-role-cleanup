@@ -50,6 +50,12 @@
       loop_control:
         label: "{{ item.name }}"
 
+    - name: Ensure a stand-in purge-old-kernels is installed
+      ansible.builtin.copy:
+        dest: /usr/local/bin/purge-old-kernels
+        content: "#!/bin/sh\n"
+        mode: "0775"
+
     - name: Ensure the stand-in journald autovacuum timer is enabled and started
       ansible.builtin.systemd_service:
         name: systemd-journald-autovacuum.timer

@@ -50,11 +50,15 @@ provisioner:
         # stand-ins for them, and verify.yml asserts that the role removed them.
         system_cleanup_logs: false
 
-        # Not this scenario's subject, and both are slow. The empty path list is
-        # the role's own default and is spelled out because a run of the role
-        # with nothing to remove has to be a no-op rather than an error.
+        # Not this scenario's subject, and slow. The empty path list is the
+        # role's own default and is spelled out because a run of the role with
+        # nothing to remove has to be a no-op rather than an error.
         system_cleanup_paths: []
         system_cleanup_apt: false
+
+        # The default scenario covers purge-old-kernels being installed. Here
+        # it is turned off: prepare.yml installs a stand-in at the role's
+        # default path, and verify.yml asserts that the role removed it.
         system_cleanup_kernels: false
 
         # Variables for the verification suite

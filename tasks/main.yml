@@ -26,6 +26,10 @@
       when: not system_cleanup_logs | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_logs.yml"
 
+    - name: Uninstall purge-old-kernels
+      when: not system_cleanup_kernels | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_kernels.yml"
+
 - name: Perform cleanup tasks
   tags:
     - setup-all
