@@ -27,6 +27,12 @@ On the legacy overlay2 graph driver, Docker does not record when an image was pu
 
 **Upgrading:** earlier versions ran `docker image prune -a` and `docker volume prune`. To get closer to that, set `system_cleanup_docker_config_superseded_images_grace_period_days: 0` and `system_cleanup_docker_config_remove_anonymous_volumes: true`.
 
+## Upgrading to v2
+
+- The Docker cleanup changed as described above.
+- The journald autovacuum timer (`journalctl --vacuum-time=7d`) is now off by default and gets removed. Earlier versions installed it on every host, ignoring `system_cleanup_logs`. To keep it, set `system_cleanup_logs: true`.
+- `purge-old-kernels` moved from `/usr/local/bin` to `system_cleanup_bin_path`.
+
 ## Development
 
 ### pre-commit
