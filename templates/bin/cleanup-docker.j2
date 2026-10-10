@@ -40,6 +40,9 @@ SECONDS_PER_DAY = 86400
 # Statuses `docker container prune` removes.
 STOPPED_CONTAINER_STATUSES = ("created", "exited", "dead")
 
+SIZE_PATTERN = re.compile(r"^([0-9.]+)\s*([kMGTP]?B)$")
+SIZE_UNITS = {"B": 1, "kB": 1e3, "MB": 1e6, "GB": 1e9, "TB": 1e12, "PB": 1e15}
+
 TIME_PATTERN = re.compile(
     r"^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?(Z|[+-]\d\d:\d\d)$"
 )
@@ -113,6 +116,21 @@ def format_size(size):
         size /= 1000.0
         if size < 1000 or unit == "TB":
             return "%.1f %s" % (size, unit)
+
+
+def images_disk_usage():
+    """Returns how much disk space images take up, as `docker system df` reports it, or None if unknown.
+
+    The sizes of individual images include layers they share with other images, so adding those up
+    overstates what removing them frees. Measuring the total before and after does not.
+    """
+    for line in docker_lines("system", "df", "--format", "json"):
+        entry = json.loads(line)
+        if entry.get("Type") == "Images":
+            match = SIZE_PATTERN.match(entry.get("Size", ""))
+            if match is not None:
+                return float(match.group(1)) * SIZE_UNITS[match.group(2)]
+    return None
 
 
 def short_id(object_id):
@@ -279,8 +297,8 @@ def prune_images(config, dry_run):
         for repository in image.repositories:
             images_by_repository.setdefault(repository, []).append(image)
 
+    disk_usage_before = None if dry_run else images_disk_usage()
     removed_count = 0
-    removed_size = 0
     for image in sorted(images, key=lambda image: image.name):
         if image.id in used_ids:
             continue
@@ -313,9 +331,13 @@ def prune_images(config, dry_run):
                 continue
             log("Removed image %s (%s): %s" % (image.name, format_size(image.size), reason))
         removed_count += 1
-        removed_size += image.size
 
-    return removed_count, removed_size
+    freed = None
+    if removed_count > 0 and disk_usage_before is not None:
+        disk_usage_after = images_disk_usage()
+        if disk_usage_after is not None:
+            freed = max(0, disk_usage_before - disk_usage_after)
+    return removed_count, freed
 
 
 def main():
@@ -330,11 +352,12 @@ def main():
         if dry_run:
             log("Dry run: nothing will be removed")
 
-        containers = images = volumes = image_size = 0
+        containers = images = volumes = 0
+        freed = None
         if config["remove_stopped_containers"]:
             containers = prune_containers(dry_run)
         if config["remove_superseded_images"]:
-            images, image_size = prune_images(config, dry_run)
+            images, freed = prune_images(config, dry_run)
         if config["remove_anonymous_volumes"]:
             volumes = prune_volumes(dry_run)
     except CleanupError as error:
@@ -342,8 +365,14 @@ def main():
         return 1
 
     log(
-        "Summary: %s %d stopped container(s), %d image(s) (%s) and %d anonymous volume(s)"
-        % ("would remove" if dry_run else "removed", containers, images, format_size(image_size), volumes)
+        "Summary: %s %d stopped container(s), %d image(s)%s and %d anonymous volume(s)"
+        % (
+            "would remove" if dry_run else "removed",
+            containers,
+            images,
+            " (freeing %s of image storage)" % format_size(freed) if freed is not None else "",
+            volumes,
+        )
     )
     return 0
 
