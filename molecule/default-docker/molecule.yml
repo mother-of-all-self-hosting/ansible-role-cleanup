@@ -49,6 +49,15 @@ provisioner:
         # that the script went where this variable says.
         system_cleanup_base_path: /srv/molecule-cleanup
 
+        # The timer, under a non-default identifier and schedule, so that
+        # verify.yml can tell that the units were rendered from these.
+        system_cleanup_identifier: molecule-cleanup
+        system_cleanup_docker_timer_enabled: true
+        system_cleanup_docker_timer_calendar: "*-*-* 03:22:44"
+        # Normally defined by the systemd_docker_base role, which playbooks run
+        # before this one and this scenario does not.
+        devture_systemd_docker_base_docker_service_name: docker.service
+
         # Off by default; turned on so that the destructive path is covered.
         system_cleanup_docker_config_remove_anonymous_volumes: true
 

@@ -64,3 +64,34 @@
           runs with `system_cleanup_docker` on and the `start` tag skipped, and relies on Docker
           being absent so that a broken tag gate fails the converge instead of quietly pruning.
         success_msg: "No Docker CLI is installed, so the role has nothing it could prune with"
+
+    # Stand-ins for the Docker cleanup's systemd units, as if the timer had
+    # been on before. This scenario leaves it off, so the role has to remove them.
+    - name: Ensure stand-in Docker cleanup systemd units are installed
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ item.name }}"
+        content: "{{ item.content }}"
+        mode: "0644"
+      loop:
+        - name: system-cleanup-docker.service
+          content: |
+            [Service]
+            Type=oneshot
+            ExecStart=/bin/true
+        - name: system-cleanup-docker.timer
+          content: |
+            [Timer]
+            Unit=system-cleanup-docker.service
+            OnCalendar=*-*-* 04:45:00
+
+            [Install]
+            WantedBy=timers.target
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Ensure the stand-in Docker cleanup timer is enabled and started
+      ansible.builtin.systemd_service:
+        name: system-cleanup-docker.timer
+        enabled: true
+        state: started
+        daemon_reload: true

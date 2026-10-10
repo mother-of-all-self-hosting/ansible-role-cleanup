@@ -61,6 +61,11 @@ provisioner:
         # The default-docker scenario covers the pruning itself.
         system_cleanup_docker: true
 
+        # Left off (the role's default). prepare.yml installs and enables
+        # stand-ins for the Docker cleanup's systemd units, and verify.yml
+        # asserts that the role removed them.
+        system_cleanup_docker_timer_enabled: false
+
         system_cleanup_apt: true
         # An apt "safe" upgrade would download whatever the distribution has
         # published since the test image was built, which is slow, variable and

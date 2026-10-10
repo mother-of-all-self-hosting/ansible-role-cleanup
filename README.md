@@ -21,7 +21,7 @@ Refer to `defaults/main.yml` to get the list of options
 
 Networks and named volumes are never removed.
 
-Ansible runs the script on runs tagged `start` (e.g. `just setup-all`). You can also run it by hand, with `--dry-run` to only see what it would remove.
+Ansible runs the script on runs tagged `start` (e.g. `just setup-all`). With `system_cleanup_docker_timer_enabled`, a systemd timer also runs it on a schedule. You can also run it by hand, with `--dry-run` to only see what it would remove.
 
 On the legacy overlay2 graph driver, Docker does not record when an image was pulled, so the build time is used instead, which shortens the grace period for pulled images.
 

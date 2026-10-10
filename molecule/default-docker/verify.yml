@@ -63,6 +63,33 @@
               `system_cleanup_base_path` is /srv/molecule-cleanup
             success_msg: "/srv/molecule-cleanup/bin/cleanup-docker is installed"
 
+        - name: Read how systemd parsed the Docker cleanup timer and service
+          ansible.builtin.command:
+            cmd: "systemctl show {{ item.unit }} --property={{ item.property }} --value"
+          register: cleanup_molecule_docker_units
+          changed_when: false
+          loop:
+            - {unit: molecule-cleanup-docker.timer, property: UnitFileState}
+            - {unit: molecule-cleanup-docker.timer, property: ActiveState}
+            - {unit: molecule-cleanup-docker.timer, property: TimersCalendar}
+            - {unit: molecule-cleanup-docker.service, property: ExecStart}
+            - {unit: molecule-cleanup-docker.service, property: Requires}
+            - {unit: molecule-cleanup-docker.service, property: After}
+          loop_control:
+            label: "{{ item.unit }} {{ item.property }}"
+
+        - name: Assert that the timer is enabled and active, and that the service runs the script after Docker
+          ansible.builtin.assert:
+            that:
+              - cleanup_molecule_docker_units.results[0].stdout == 'enabled'
+              - cleanup_molecule_docker_units.results[1].stdout == 'active'
+              - "'03:22:44' in cleanup_molecule_docker_units.results[2].stdout"
+              - "'path=/srv/molecule-cleanup/bin/cleanup-docker ' in cleanup_molecule_docker_units.results[3].stdout"
+              - "'docker.service' in cleanup_molecule_docker_units.results[4].stdout.split()"
+              - "'docker.service' in cleanup_molecule_docker_units.results[5].stdout.split()"
+            fail_msg: "systemd reports {{ cleanup_molecule_docker_units.results | map(attribute='stdout') | list }}"
+            success_msg: "The timer is enabled and active, on this scenario's schedule, and the service runs after Docker"
+
         - name: Index which of those commands found their object
           ansible.builtin.set_fact:
             cleanup_molecule_found: "{{ cleanup_molecule_docker_after.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list }}"

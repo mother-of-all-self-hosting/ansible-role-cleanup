@@ -24,6 +24,10 @@
       when: system_cleanup_docker | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install_docker.yml"
 
+    - name: Install the Docker cleanup timer
+      when: system_cleanup_docker | bool and system_cleanup_docker_timer_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install_docker_timer.yml"
+
 - name: Perform cleanup uninstallation tasks
   tags:
     - setup-all
@@ -36,6 +40,10 @@
     - name: Uninstall purge-old-kernels
       when: not system_cleanup_kernels | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_kernels.yml"
+
+    - name: Uninstall the Docker cleanup timer
+      when: not (system_cleanup_docker | bool and system_cleanup_docker_timer_enabled | bool)
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_docker_timer.yml"
 
     - name: Uninstall the Docker cleanup
       when: not system_cleanup_docker | bool

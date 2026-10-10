@@ -327,6 +327,34 @@
               `system_cleanup_docker` is on, the skipped tags are {{ ansible_skip_tags }} and there is no
               Docker on this host - the pruning tasks were skipped rather than failing
 
+        # prepare.yml installed, enabled and started stand-ins for these, and
+        # `system_cleanup_docker_timer_enabled` is off in this scenario.
+        - name: Look for the Docker cleanup unit files and the timer's enablement symlink
+          ansible.builtin.stat:
+            path: "{{ item }}"
+          register: cleanup_molecule_docker_unit_files
+          loop:
+            - /etc/systemd/system/system-cleanup-docker.service
+            - /etc/systemd/system/system-cleanup-docker.timer
+            - /etc/systemd/system/timers.target.wants/system-cleanup-docker.timer
+
+        - name: Read the state of the Docker cleanup timer
+          ansible.builtin.command:
+            cmd: systemctl show system-cleanup-docker.timer --property=ActiveState --value
+          register: cleanup_molecule_docker_timer_state
+          changed_when: false
+
+        - name: Assert that the Docker cleanup units were stopped, disabled and removed
+          ansible.builtin.assert:
+            that:
+              - cleanup_molecule_docker_unit_files.results | selectattr('stat.exists') | list | length == 0
+              - cleanup_molecule_docker_timer_state.stdout == 'inactive'
+            fail_msg: >-
+              Still present: {{ cleanup_molecule_docker_unit_files.results | selectattr('stat.exists') | map(attribute='item') | list }};
+              the timer is {{ cleanup_molecule_docker_timer_state.stdout }}. With
+              `system_cleanup_docker_timer_enabled` off, the role should have stopped, disabled and removed the units.
+            success_msg: "The Docker cleanup units were stopped, disabled and removed"
+
         - name: Show the Cleanup verification summary
           ansible.builtin.debug:
             msg:
@@ -334,7 +362,7 @@
               - "paths: {{ cleanup_molecule_removed_paths | length }} removed, {{ cleanup_molecule_kept_paths | length }} untouched"
               - "apt: the archive cache was emptied"
               - "kernels: {{ cleanup_molecule_kernels_version.stdout }} at {{ system_cleanup_kernels_script }}"
-              - "docker: pruning skipped, as the run skipped the 'start' tag"
+              - "docker: pruning skipped, as the run skipped the 'start' tag; timer units uninstalled"
 
       rescue:
         - name: Retrieve the state of the journald autovacuum units
