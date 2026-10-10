@@ -39,6 +39,8 @@
             - "docker container inspect {{ cleanup_molecule_exited_container }}"
             - "docker image inspect {{ cleanup_molecule_docker_image }}"
             - "docker image inspect {{ cleanup_molecule_unused_image }}"
+            - "docker image inspect {{ cleanup_molecule_superseded_image }}"
+            - "docker image inspect {{ cleanup_molecule_superseding_image }}"
             - "docker volume inspect {{ cleanup_molecule_used_volume }}"
             - "docker volume inspect {{ cleanup_molecule_named_volume }}"
             - "docker volume inspect {{ cleanup_molecule_anonymous_volume }}"
@@ -108,31 +110,40 @@
 
         ########################################################################
         #                                                                      #
-        # what `docker image prune -a -f` removed                              #
+        # which images were removed                                            #
         #                                                                      #
         ########################################################################
 
-        # `-a` means every image no container references, tagged ones included.
-        # The image the surviving container runs is referenced and stays; the one
-        # prepare.yml committed and then orphaned goes. Both halves matter: an
-        # image prune that took the running container's image with it would break
-        # every host this role runs on.
-        - name: Assert that the unused image was pruned and the one in use was not
+        # Only the image which is unused *and* superseded by a newer image of
+        # its repository goes. The unused image with no newer version is what
+        # sets this apart from `docker image prune -a`, which would take it: it
+        # stands for the image of a stopped service or of a container that only
+        # runs on a timer.
+        - name: Assert that only the superseded image was removed
           vars:
             cleanup_molecule_used_image_key: "docker image inspect {{ cleanup_molecule_docker_image }}"
             cleanup_molecule_unused_image_key: "docker image inspect {{ cleanup_molecule_unused_image }}"
+            cleanup_molecule_superseded_image_key: "docker image inspect {{ cleanup_molecule_superseded_image }}"
+            cleanup_molecule_superseding_image_key: "docker image inspect {{ cleanup_molecule_superseding_image }}"
           ansible.builtin.assert:
             that:
-              - cleanup_molecule_unused_image_key not in cleanup_molecule_found
+              - cleanup_molecule_superseded_image_key not in cleanup_molecule_found
+              - cleanup_molecule_superseding_image_key in cleanup_molecule_found
+              - cleanup_molecule_unused_image_key in cleanup_molecule_found
               - cleanup_molecule_used_image_key in cleanup_molecule_found
             fail_msg: >-
-              The unused image {{ cleanup_molecule_unused_image }} is
+              The superseded image {{ cleanup_molecule_superseded_image }} is
+              {{ 'still there' if cleanup_molecule_superseded_image_key in cleanup_molecule_found else 'gone' }},
+              the newer {{ cleanup_molecule_superseding_image }} is
+              {{ 'still there' if cleanup_molecule_superseding_image_key in cleanup_molecule_found else 'gone' }},
+              the unused image without a newer version {{ cleanup_molecule_unused_image }} is
               {{ 'still there' if cleanup_molecule_unused_image_key in cleanup_molecule_found else 'gone' }}
               and the image in use {{ cleanup_molecule_docker_image }} is
-              {{ 'still there' if cleanup_molecule_used_image_key in cleanup_molecule_found else 'gone' }}
+              {{ 'still there' if cleanup_molecule_used_image_key in cleanup_molecule_found else 'gone' }}.
+              Only the first should be gone.
             success_msg: >-
-              {{ cleanup_molecule_unused_image }} was pruned and {{ cleanup_molecule_docker_image }},
-              which the surviving container runs, was left alone
+              {{ cleanup_molecule_superseded_image }} was removed; {{ cleanup_molecule_superseding_image }},
+              {{ cleanup_molecule_unused_image }} and {{ cleanup_molecule_docker_image }} were left alone
 
         ########################################################################
         #                                                                      #
@@ -266,8 +277,8 @@
             cleanup_molecule_anonymous_volume: "{{ cleanup_molecule_anonymous_volume_slurp.content | b64decode | trim }}"
           ansible.builtin.debug:
             msg:
-              - "pruned: container {{ cleanup_molecule_exited_container }}, image {{ cleanup_molecule_unused_image }}, anonymous volume {{ cleanup_molecule_anonymous_volume }}"
-              - "kept: container {{ cleanup_molecule_running_container }} (running), image {{ cleanup_molecule_docker_image }}"
+              - "pruned: container {{ cleanup_molecule_exited_container }}, image {{ cleanup_molecule_superseded_image }}, anonymous volume {{ cleanup_molecule_anonymous_volume }}"
+              - "kept: container {{ cleanup_molecule_running_container }} (running), images {{ cleanup_molecule_docker_image }} (in use), {{ cleanup_molecule_superseding_image }} (newest) and {{ cleanup_molecule_unused_image }} (no newer version)"
               - "kept: volumes {{ cleanup_molecule_used_volume }} (with its contents) and {{ cleanup_molecule_named_volume }}"
               - "kept: network {{ cleanup_molecule_network }}"
               - "uninstalled: the journald autovacuum units and purge-old-kernels"

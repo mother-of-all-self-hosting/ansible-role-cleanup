@@ -112,11 +112,18 @@
       register: cleanup_molecule_docker_seed_run
       changed_when: cleanup_molecule_docker_seed_run.rc == 0
 
-    - name: Ensure an image nothing uses exists
+    # Committed one after another, so that each arrives (and is built) later
+    # than the one before. The first is the only image of its repository; the
+    # second is superseded by the third.
+    - name: Ensure the unused images exist
       ansible.builtin.command:
-        cmd: "docker commit {{ cleanup_molecule_seed_container }} {{ cleanup_molecule_unused_image }}"
+        cmd: "docker commit {{ cleanup_molecule_seed_container }} {{ item }}"
       register: cleanup_molecule_docker_commit
       changed_when: cleanup_molecule_docker_commit.rc == 0
+      loop:
+        - "{{ cleanup_molecule_unused_image }}"
+        - "{{ cleanup_molecule_superseded_image }}"
+        - "{{ cleanup_molecule_superseding_image }}"
 
     # Without `-v`, so the anonymous volume outlives the container and becomes
     # the dangling volume `docker volume prune` is meant to find.
@@ -206,6 +213,8 @@
         - "docker container inspect {{ cleanup_molecule_exited_container }}"
         - "docker image inspect {{ cleanup_molecule_docker_image }}"
         - "docker image inspect {{ cleanup_molecule_unused_image }}"
+        - "docker image inspect {{ cleanup_molecule_superseded_image }}"
+        - "docker image inspect {{ cleanup_molecule_superseding_image }}"
         - "docker volume inspect {{ cleanup_molecule_used_volume }}"
         - "docker volume inspect {{ cleanup_molecule_named_volume }}"
         - "docker volume inspect {{ cleanup_molecule_docker_volumes.stdout }}"

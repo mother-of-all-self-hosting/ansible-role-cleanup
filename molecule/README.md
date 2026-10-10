@@ -45,6 +45,7 @@ What the suite does not cover:
 
 - **`system_cleanup_apt`'s upgrade step.** The scenario sets `system_cleanup_apt_upgrade_type` to `no`, because an actual `safe` upgrade would download whatever the distribution has published since the test image was built. What is asserted is the second half of `tasks/run_apt.yml`: a file seeded into `/var/cache/apt/archives` is gone afterwards, which only `apt-get clean` could have done.
 - **`purge-old-kernels` actually purging a kernel.** A container has no kernel packages, and the scenario asserts `/boot` is empty precisely so that running the script there is known to be a no-op. What is asserted is that the script the role vendors was installed at the configured path, at the configured mode, byte for byte, and runs.
+- **The grace period.** An image's arrival time (`LastTagTime`) cannot be backdated, and every image in the scenario is minutes old, so the scenario sets the grace period to 0 days and asserts the rule itself: an unused image is removed only if a newer image of its repository exists.
 - **Idempotence.** The role is not idempotent and is not meant to be: it starts a `Type=oneshot` unit that has gone back to inactive by the next run, and its pruning and package-manager tasks are unconditional commands. Both scenarios therefore leave the `idempotence` step out of their test sequence.
 
 ## Scenarios
@@ -61,13 +62,15 @@ The scenario also runs with `system_cleanup_docker` turned on, on a host that ha
 
 ### `default-docker`
 
-The destructive half: `system_cleanup_docker` with the `start` tag actually present, which is how [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) invokes the role (`--tags=setup-all,start`). The role's files are moved to a non-default base path, and the cleanup script is asserted to be installed there.
+The destructive half: `system_cleanup_docker` with the `start` tag actually present, which is how [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) invokes the role (`--tags=setup-all,start`). The role's files are moved to a non-default base path, and the cleanup script is asserted to be installed there. The scenario also turns on the optional removal of anonymous volumes.
 
 It also covers the role uninstalling what it no longer should have: `system_cleanup_logs` and `system_cleanup_kernels` are off, and stand-ins for the journald autovacuum units (installed and enabled) and for `purge-old-kernels` (at the role's path and at `/usr/local/bin`, where earlier versions of the role installed it), put in place before the role runs, are asserted to be stopped, disabled and removed afterwards.
 
-An empty Docker daemon is filled with a running container, a stopped one, an image nothing uses, the image the running container does use, a named volume in use, an unused named volume, an anonymous volume nothing references any more, and a network attached to nothing. After the role has run, the stopped container, the unused image and the anonymous volume are gone, and everything else — including the contents of the volume in use — is still there.
+An empty Docker daemon is filled with a running container, a stopped one, the image the running container uses, an unused image which is the only one of its repository, two unused images of another repository (one superseded by the other), a named volume in use, an unused named volume, an anonymous volume nothing references any more, and a network attached to nothing. After the role has run, the stopped container, the superseded image and the anonymous volume are gone, and everything else — including the contents of the volume in use — is still there.
 
-Two of those are worth spelling out:
+Three of those are worth spelling out:
+
+- **The unused image without a newer version is preserved.** This is what sets the role apart from `docker image prune -a`: it stands for the image of a stopped service, or of a container that only runs on a timer.
 
 - **Networks are preserved.** The role runs no `docker network prune`, which `defaults/main.yml` promises. The network seeded here is attached to nothing, so a prune would take it.
 - **Unused *named* volumes are preserved.** Since Docker 23, `docker volume prune` without `--all` removes only anonymous volumes, and the role passes no `--all`. This is asserted deliberately: a named volume is where a self-hosted service keeps its data.

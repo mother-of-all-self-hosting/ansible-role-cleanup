@@ -49,6 +49,15 @@ provisioner:
         # that the script went where this variable says.
         system_cleanup_base_path: /srv/molecule-cleanup
 
+        # Off by default; turned on so that the destructive path is covered.
+        system_cleanup_docker_config_remove_anonymous_volumes: true
+
+        # The images prepare.yml creates are all minutes old, and the time an
+        # image arrived (`LastTagTime`) cannot be backdated. With no grace
+        # period, what is asserted is the rule itself: an unused image goes only
+        # if a newer image of its repository exists.
+        system_cleanup_docker_config_superseded_images_grace_period_days: 0
+
         # The default scenario covers the journald autovacuum units being
         # installed. Here they are turned off: prepare.yml installs and enables
         # stand-ins for them, and verify.yml asserts that the role removed them.
@@ -73,6 +82,8 @@ provisioner:
         cleanup_molecule_exited_container: molecule-cleanup-exited
         cleanup_molecule_seed_container: molecule-cleanup-seed
         cleanup_molecule_unused_image: molecule-cleanup-unused:latest
+        cleanup_molecule_superseded_image: molecule-cleanup-app:1
+        cleanup_molecule_superseding_image: molecule-cleanup-app:2
         cleanup_molecule_used_volume: molecule-cleanup-volume-used
         cleanup_molecule_named_volume: molecule-cleanup-volume-named
         cleanup_molecule_network: molecule-cleanup-network
