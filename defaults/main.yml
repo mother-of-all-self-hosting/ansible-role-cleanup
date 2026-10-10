@@ -64,7 +64,10 @@ system_cleanup_docker_systemd_wanted_services_list_custom: []
 
 # install a systemd timer which runs `journalctl --vacuum-time=7d` to remove old logs
 # (turning this off removes the timer)
-system_cleanup_logs: true
+#
+# journald already limits how much space the journal takes up (see `SystemMaxUse` in `man journald.conf`),
+# so this is only needed for keeping logs for a shorter time.
+system_cleanup_logs: false
 system_cleanup_logs_retention: 7d
 system_cleanup_logs_calendar: "*-*-* 04:15:00"
 
