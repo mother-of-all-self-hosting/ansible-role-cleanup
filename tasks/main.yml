@@ -10,11 +10,21 @@
     - install-cleanup
   block:
     - name: Install systemd-journald-autovacuum
+      when: system_cleanup_logs | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install_logs.yml"
 
     - name: Install purge-old-kernels
       when: system_cleanup_kernels | bool and ansible_facts['os_family'] == "Debian"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install_kernels.yml"
+
+- name: Perform cleanup uninstallation tasks
+  tags:
+    - setup-all
+    - setup-cleanup
+  block:
+    - name: Uninstall systemd-journald-autovacuum
+      when: not system_cleanup_logs | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall_logs.yml"
 
 - name: Perform cleanup tasks
   tags:

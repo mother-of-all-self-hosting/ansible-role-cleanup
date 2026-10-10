@@ -45,11 +45,10 @@ provisioner:
         # variable with the tag missing, and proves nothing gets pruned then.
         system_cleanup_docker: true
 
-        # The default scenario covers these. They are set to values other than
-        # the role's defaults here as well, so that a converge which somehow
-        # picked up the wrong variables would not look the same as this one.
-        system_cleanup_logs_retention: 5d
-        system_cleanup_logs_calendar: "*-*-* 02:11:33"
+        # The default scenario covers the journald autovacuum units being
+        # installed. Here they are turned off: prepare.yml installs and enables
+        # stand-ins for them, and verify.yml asserts that the role removed them.
+        system_cleanup_logs: false
 
         # Not this scenario's subject, and both are slow. The empty path list is
         # the role's own default and is spelled out because a run of the role

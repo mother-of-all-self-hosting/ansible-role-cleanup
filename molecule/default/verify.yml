@@ -44,19 +44,12 @@
             - systemd-journald-autovacuum.service
             - systemd-journald-autovacuum.timer
 
-        # `system_cleanup_logs` is off (the role's own default), and the units
-        # are here anyway: nothing in tasks/ or templates/ reads that variable.
-        # This assertion states the behavior as it is. Should the variable ever
-        # be wired up, this is what fails, and whoever wired it up gets to think
-        # about the hosts that would stop vacuuming their journals.
-        - name: Assert that the journald autovacuum units are installed regardless of system_cleanup_logs
+        - name: Assert that the journald autovacuum units are installed
           ansible.builtin.assert:
             that: item.stat.exists
             fail_msg: >-
-              /etc/systemd/system/{{ item.item }} is missing. The role installs the journald
-              autovacuum units unconditionally - `system_cleanup_logs` ({{ system_cleanup_logs }})
-              is not referenced anywhere in the role. If that changed on purpose, note that every
-              consumer which never set the variable would stop getting these units.
+              /etc/systemd/system/{{ item.item }} is missing, although `system_cleanup_logs` is
+              {{ system_cleanup_logs }}
             success_msg: "/etc/systemd/system/{{ item.item }} is installed"
           loop: "{{ cleanup_molecule_units.results }}"
           loop_control:

@@ -36,14 +36,10 @@ provisioner:
         # default, so that verify.yml can tell a value the role rendered from
         # this scenario's variables apart from one that merely looks right.
 
-        # Left off, which is also the role's default, and stated here because it
-        # makes no difference: `system_cleanup_logs` is not referenced anywhere
-        # in tasks/ or templates/, and the journald autovacuum units are
-        # installed, enabled and started unconditionally. verify.yml asserts
-        # that, so that this is documented behavior rather than a surprise -
-        # and so that anyone who makes the variable do what its name says has
-        # to notice they are changing what every existing host gets.
-        system_cleanup_logs: false
+        # On, which is also the role's default, because this scenario asserts
+        # what the journald autovacuum units look like. The default-docker
+        # scenario turns it off and asserts that the units are removed.
+        system_cleanup_logs: true
 
         # The role's default is 7d.
         system_cleanup_logs_retention: 3d

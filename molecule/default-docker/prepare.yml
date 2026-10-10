@@ -25,6 +25,38 @@
       ansible.builtin.include_role:
         name: ansible-role-docker
 
+    # Stand-ins for the journald autovacuum units of an earlier run of the
+    # role, when it still installed them unconditionally. This scenario turns
+    # `system_cleanup_logs` off, so the role has to remove them.
+    - name: Ensure stand-in journald autovacuum units are installed
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ item.name }}"
+        content: "{{ item.content }}"
+        mode: "0644"
+      loop:
+        - name: systemd-journald-autovacuum.service
+          content: |
+            [Service]
+            Type=oneshot
+            ExecStart=/bin/true
+        - name: systemd-journald-autovacuum.timer
+          content: |
+            [Timer]
+            Unit=systemd-journald-autovacuum.service
+            OnCalendar=*-*-* 04:15:00
+
+            [Install]
+            WantedBy=timers.target
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Ensure the stand-in journald autovacuum timer is enabled and started
+      ansible.builtin.systemd_service:
+        name: systemd-journald-autovacuum.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
     # A precondition. Everything below is written as "this object was here and
     # is gone" or "this object was here and still is", which only means anything
     # if the daemon started out with nothing of its own.

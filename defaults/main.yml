@@ -6,8 +6,9 @@
 # run docker prune commands to remove unused containers, images, and volumes (networks are preserved)
 system_cleanup_docker: false
 
-# run `journalctl --vacuum-time=7d` to remove old logs
-system_cleanup_logs: false
+# install a systemd timer which runs `journalctl --vacuum-time=7d` to remove old logs
+# (turning this off removes the timer)
+system_cleanup_logs: true
 system_cleanup_logs_retention: 7d
 system_cleanup_logs_calendar: "*-*-* 04:15:00"
 

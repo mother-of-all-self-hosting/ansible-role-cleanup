@@ -192,6 +192,40 @@
               are preserved.
             success_msg: "{{ cleanup_molecule_network }} is still there, as promised"
 
+        ########################################################################
+        #                                                                      #
+        # the journald autovacuum units were uninstalled                       #
+        #                                                                      #
+        ########################################################################
+
+        # prepare.yml installed, enabled and started stand-ins for these, and
+        # `system_cleanup_logs` is off in this scenario.
+        - name: Look for the journald autovacuum unit files and the timer's enablement symlink
+          ansible.builtin.stat:
+            path: "{{ item }}"
+          register: cleanup_molecule_logs_files
+          loop:
+            - /etc/systemd/system/systemd-journald-autovacuum.service
+            - /etc/systemd/system/systemd-journald-autovacuum.timer
+            - /etc/systemd/system/timers.target.wants/systemd-journald-autovacuum.timer
+
+        - name: Read the state of the journald autovacuum timer
+          ansible.builtin.command:
+            cmd: systemctl show systemd-journald-autovacuum.timer --property=ActiveState --value
+          register: cleanup_molecule_logs_timer_state
+          changed_when: false
+
+        - name: Assert that the journald autovacuum units were stopped, disabled and removed
+          ansible.builtin.assert:
+            that:
+              - cleanup_molecule_logs_files.results | selectattr('stat.exists') | list | length == 0
+              - cleanup_molecule_logs_timer_state.stdout == 'inactive'
+            fail_msg: >-
+              Still present: {{ cleanup_molecule_logs_files.results | selectattr('stat.exists') | map(attribute='item') | list }};
+              the timer is {{ cleanup_molecule_logs_timer_state.stdout }}. With `system_cleanup_logs` off,
+              the role should have stopped, disabled and removed the units.
+            success_msg: "The journald autovacuum units were stopped, disabled and removed"
+
         - name: Show the Cleanup verification summary
           vars:
             cleanup_molecule_anonymous_volume: "{{ cleanup_molecule_anonymous_volume_slurp.content | b64decode | trim }}"
@@ -201,6 +235,7 @@
               - "kept: container {{ cleanup_molecule_running_container }} (running), image {{ cleanup_molecule_docker_image }}"
               - "kept: volumes {{ cleanup_molecule_used_volume }} (with its contents) and {{ cleanup_molecule_named_volume }}"
               - "kept: network {{ cleanup_molecule_network }}"
+              - "uninstalled: the journald autovacuum units"
 
       rescue:
         - name: Retrieve what the Docker daemon holds
