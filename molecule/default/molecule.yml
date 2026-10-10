@@ -64,7 +64,7 @@ provisioner:
         # An apt "safe" upgrade would download whatever the distribution has
         # published since the test image was built, which is slow, variable and
         # tells us nothing about the role. "no" keeps the first task of
-        # tasks/packages.yml cheap while the second one - clean, autoclean,
+        # tasks/run_apt.yml cheap while the second one - clean, autoclean,
         # autoremove - still does its work, which is what verify.yml checks.
         system_cleanup_apt_upgrade_type: "no"
 
@@ -92,7 +92,7 @@ provisioner:
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
 scenario:
   # The stock sequence without `idempotence`. This role is not idempotent and is
-  # not meant to be: `tasks/logs.yml` starts a `Type=oneshot` unit, which has
+  # not meant to be: `tasks/install_logs.yml` starts a `Type=oneshot` unit, which has
   # gone back to inactive by the time the next run looks at it and so is started
   # again, and the pruning and package-manager tasks are unconditional commands.
   # Running housekeeping is the point; reporting no change would mean it had not

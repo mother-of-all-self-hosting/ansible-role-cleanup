@@ -38,7 +38,7 @@
 
     # `apt-get clean` empties /var/cache/apt/archives. Nothing else in this
     # scenario writes to or reads from that directory, so a file placed here
-    # disappears only if tasks/packages.yml ran.
+    # disappears only if tasks/run_apt.yml ran.
     - name: Ensure a package file is seeded in the apt archive cache
       ansible.builtin.copy:
         content: "not really a package\n"

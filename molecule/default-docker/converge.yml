@@ -8,7 +8,7 @@
   become: true
   gather_facts: true
   tasks:
-    # A precondition of this scenario rather than of the role: `tasks/docker.yml`
+    # A precondition of this scenario rather than of the role: `tasks/run_docker.yml`
     # is gated on 'start' being among the run tags, which molecule.yml arranges
     # by passing `--tags all,start`. If that ever stopped working the pruning
     # tasks would be skipped and every assertion in verify.yml would still pass,

@@ -43,7 +43,7 @@ Where the role renders configuration — the journald autovacuum units — the v
 
 What the suite does not cover:
 
-- **`system_cleanup_apt`'s upgrade step.** The scenario sets `system_cleanup_apt_upgrade_type` to `no`, because an actual `safe` upgrade would download whatever the distribution has published since the test image was built. What is asserted is the second half of `tasks/packages.yml`: a file seeded into `/var/cache/apt/archives` is gone afterwards, which only `apt-get clean` could have done.
+- **`system_cleanup_apt`'s upgrade step.** The scenario sets `system_cleanup_apt_upgrade_type` to `no`, because an actual `safe` upgrade would download whatever the distribution has published since the test image was built. What is asserted is the second half of `tasks/run_apt.yml`: a file seeded into `/var/cache/apt/archives` is gone afterwards, which only `apt-get clean` could have done.
 - **`purge-old-kernels` actually purging a kernel.** A container has no kernel packages, and the scenario asserts `/boot` is empty precisely so that running the script there is known to be a no-op. What is asserted is that the script the role vendors was installed at the configured path, at the configured mode, byte for byte, and runs.
 - **Idempotence.** The role is not idempotent and is not meant to be: it starts a `Type=oneshot` unit that has gone back to inactive by the next run, and its pruning and package-manager tasks are unconditional commands. Both scenarios therefore leave the `idempotence` step out of their test sequence.
 
@@ -88,4 +88,4 @@ MOLECULE_DISTRO=debian13 molecule test --scenario-name default
 MOLECULE_DISTRO=debian12 molecule test --scenario-name default
 ```
 
-Note that `tasks/packages.yml` and `tasks/kernels.yml` only run on Debian-family hosts, so a scenario run against another distribution family exercises less of the role.
+Note that `tasks/run_apt.yml` and `tasks/run_kernels.yml` only run on Debian-family hosts, so a scenario run against another distribution family exercises less of the role.

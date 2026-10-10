@@ -194,7 +194,7 @@
         #                                                                      #
         ########################################################################
 
-        # tasks/packages.yml and tasks/kernels.yml are gated on the Debian
+        # tasks/run_apt.yml and tasks/run_kernels.yml are gated on the Debian
         # family, so everything from here down only holds on a Debian-family
         # host. Saying so here keeps the reason legible for anyone who points
         # this scenario at another distribution.
@@ -202,8 +202,8 @@
           ansible.builtin.assert:
             that: ansible_facts['os_family'] == 'Debian'
             fail_msg: >-
-              This host is {{ ansible_facts['os_family'] }}. tasks/packages.yml and
-              tasks/kernels.yml only run on the Debian family, so the assertions below say nothing
+              This host is {{ ansible_facts['os_family'] }}. tasks/run_apt.yml and
+              tasks/run_kernels.yml only run on the Debian family, so the assertions below say nothing
               here - run this scenario with MOLECULE_DISTRO set to a Debian or Ubuntu image.
             success_msg: "This host is Debian-family, so the package-manager and kernel tasks ran"
 
@@ -216,7 +216,7 @@
           ansible.builtin.assert:
             that: not cleanup_molecule_seeded_deb_stat.stat.exists
             fail_msg: >-
-              {{ cleanup_molecule_seeded_deb }} is still there. tasks/packages.yml did not run, or
+              {{ cleanup_molecule_seeded_deb }} is still there. tasks/run_apt.yml did not run, or
               its `clean` did not take effect. Nothing else in this scenario writes to or reads from
               /var/cache/apt/archives.
             success_msg: "{{ cleanup_molecule_seeded_deb }} is gone, so the package manager was cleaned"
