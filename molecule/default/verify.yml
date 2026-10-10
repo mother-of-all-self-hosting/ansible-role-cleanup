@@ -249,6 +249,7 @@
         # are only loaded under `cleanup_defaults` here.
         - name: Resolve the role's default path of the purge-old-kernels script
           vars:
+            system_cleanup_identifier: "{{ cleanup_defaults.system_cleanup_identifier }}"
             system_cleanup_base_path: "{{ cleanup_defaults.system_cleanup_base_path }}"
             system_cleanup_bin_path: "{{ cleanup_defaults.system_cleanup_bin_path }}"
           ansible.builtin.set_fact:

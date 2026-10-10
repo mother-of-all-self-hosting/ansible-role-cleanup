@@ -3,9 +3,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 ---
+# Used for naming what the role installs (e.g. its base path).
+system_cleanup_identifier: system-cleanup
+
 # Where the role keeps the files it installs.
 # Playbooks typically override the base path to live next to their other services (e.g. `/mash/system-cleanup`).
-system_cleanup_base_path: /system-cleanup
+system_cleanup_base_path: "/{{ system_cleanup_identifier }}"
 system_cleanup_bin_path: "{{ system_cleanup_base_path }}/bin"
 system_cleanup_config_path: "{{ system_cleanup_base_path }}/config"
 
