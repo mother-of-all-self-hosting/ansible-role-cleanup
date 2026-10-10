@@ -24,6 +24,11 @@ provisioner:
   config_options:
     defaults:
       callback_result_format: yaml
+  options:
+    # The role's Docker pruning is tagged 'start'. Skipping that tag models a
+    # run without it (like `--tags=setup-all`), while every untagged task in
+    # every playbook of this scenario still runs.
+    skip-tags: start
   inventory:
     group_vars:
       all:
@@ -52,9 +57,9 @@ provisioner:
           - /var/lib/molecule-cleanup/removed-file
           - /var/lib/molecule-cleanup/removed-directory
 
-        # Turned on although no Docker is installed on this host. The role only
-        # prunes when 'start' is among the tags the playbook was run with, and
-        # this scenario runs without it. If that gate ever stopped working,
+        # Turned on although no Docker is installed on this host. The role's
+        # Docker pruning is tagged 'start', and this scenario skips that tag.
+        # If that gate ever stopped working,
         # `docker container prune` would run and the converge would fail with
         # "docker: command not found" - which is the point of leaving it on.
         # The default-docker scenario covers the pruning itself.

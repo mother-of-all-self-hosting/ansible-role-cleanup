@@ -22,10 +22,6 @@
     - setup-cleanup
     - install-cleanup
   block:
-    - name: Clean up Docker
-      when: system_cleanup_docker | bool and 'start' in ansible_run_tags
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/run_docker.yml"
-
     - name: Remove paths
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/run_paths.yml"
 
@@ -36,3 +32,13 @@
     - name: Purge old kernels
       when: system_cleanup_kernels | bool and ansible_facts['os_family'] == "Debian"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/run_kernels.yml"
+
+# The Docker cleanup is wired to the `start` tag, which is also what (re)starts services.
+# It relies on the services' containers to tell which images are still in use.
+- name: Perform cleanup tasks on start
+  tags:
+    - start
+  block:
+    - name: Clean up Docker
+      when: system_cleanup_docker | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/run_docker.yml"

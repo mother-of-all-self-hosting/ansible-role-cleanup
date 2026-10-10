@@ -61,6 +61,6 @@
         that: cleanup_molecule_prepare_docker.rc != 0
         fail_msg: >-
           A Docker CLI is installed at {{ cleanup_molecule_prepare_docker.stdout }}. This scenario
-          runs with `system_cleanup_docker` on and without the `start` tag, and relies on Docker
+          runs with `system_cleanup_docker` on and the `start` tag skipped, and relies on Docker
           being absent so that a broken tag gate fails the converge instead of quietly pruning.
         success_msg: "No Docker CLI is installed, so the role has nothing it could prune with"

@@ -32,11 +32,11 @@ provisioner:
     defaults:
       callback_result_format: yaml
   options:
-    # The role only prunes Docker when 'start' is among the tags the playbook
-    # was run with, which is how mash-playbook invokes it (`setup-all,start`).
-    # 'all' is Ansible's own "run everything" tag, so every task in every
-    # playbook of this scenario still runs; it is only here so that the run tags
-    # this scenario advertises are the ones the role looks for.
+    # The role's Docker pruning is tagged 'start', which is how mash-playbook
+    # invokes it (`setup-all,start`). 'all' is Ansible's own "run everything"
+    # tag, so every task in every playbook of this scenario still runs; 'start'
+    # is only here so that the run tags this scenario advertises are the ones
+    # the role is wired to.
     tags: all,start
   inventory:
     group_vars:

@@ -11,7 +11,7 @@ System cleanup role
 
 Refer to `defaults/main.yml` to get the list of options
 
-Note that the Docker pruning enabled by `system_cleanup_docker` only runs when `start` is among the tags the playbook was invoked with — which is what mash-playbook's `just setup-all` (`--tags=setup-all,start`) and `just install-all` (`--tags=install-all,start`) pass. A run without that tag, such as `just install-service <name>`, installs and schedules everything else but prunes nothing.
+Note that the Docker pruning enabled by `system_cleanup_docker` is tagged `start`, so it runs along with (re)starting services — which is what mash-playbook's `just setup-all` (`--tags=setup-all,start`) and `just install-all` (`--tags=install-all,start`) do. A run whose tags do not include `start`, such as `just install-service <name>` (`--tags=install-<name>,start-group`), installs and schedules everything else but prunes nothing.
 
 ## Development
 

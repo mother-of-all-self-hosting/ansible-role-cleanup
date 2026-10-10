@@ -296,8 +296,8 @@
         ########################################################################
 
         # `system_cleanup_docker` is on for this scenario and no Docker is
-        # installed. The role's pruning tasks also require 'start' among the run
-        # tags, which this scenario does not pass, so they were skipped - had
+        # installed. The role's pruning tasks are tagged 'start', which this
+        # scenario skips, so they were skipped - had
         # they not been, the converge would already have failed on
         # "docker: command not found" and this play would never have run.
         # Restating it here so that the reason a green run means something is
@@ -314,14 +314,14 @@
             that:
               - cleanup_molecule_docker.rc != 0
               - system_cleanup_docker | bool
-              - "'start' not in ansible_run_tags"
+              - "'start' in ansible_skip_tags"
             fail_msg: >-
               This scenario proves the `start` tag gate by turning `system_cleanup_docker` on
-              ({{ system_cleanup_docker }}) on a host with no Docker and running without the tag
-              (run tags: {{ ansible_run_tags }}). One of those is no longer true, so a green run
+              ({{ system_cleanup_docker }}) on a host with no Docker and skipping the tag
+              (skipped tags: {{ ansible_skip_tags }}). One of those is no longer true, so a green run
               here no longer says anything about the gate.
             success_msg: >-
-              `system_cleanup_docker` is on, the run tags are {{ ansible_run_tags }} and there is no
+              `system_cleanup_docker` is on, the skipped tags are {{ ansible_skip_tags }} and there is no
               Docker on this host - the pruning tasks were skipped rather than failing
 
         - name: Show the Cleanup verification summary
@@ -331,7 +331,7 @@
               - "paths: {{ cleanup_molecule_removed_paths | length }} removed, {{ cleanup_molecule_kept_paths | length }} untouched"
               - "apt: the archive cache was emptied"
               - "kernels: {{ cleanup_molecule_kernels_version.stdout }} at {{ system_cleanup_kernels_script }}"
-              - "docker: pruning skipped, as the run carried no 'start' tag"
+              - "docker: pruning skipped, as the run skipped the 'start' tag"
 
       rescue:
         - name: Retrieve the state of the journald autovacuum units

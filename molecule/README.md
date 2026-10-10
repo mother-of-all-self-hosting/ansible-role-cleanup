@@ -57,7 +57,7 @@ Everything the role does to a host except Docker pruning.
 
 It asserts that the journald autovacuum service and timer are installed, that systemd parsed them with this scenario's retention and schedule rather than the role's defaults, that the timer is enabled and active and that the service ran and reported vacuuming the journals; that the two paths named in `system_cleanup_paths` are gone while two identically seeded neighbours which were *not* named are untouched; that the apt archive cache was emptied; and that `purge-old-kernels` was installed at the path `system_cleanup_kernels_script` names — and nowhere near the role's default path.
 
-The scenario also runs with `system_cleanup_docker` turned on, on a host that has no Docker at all. The role only prunes when `start` is among the tags the playbook was run with, and this scenario does not pass it, so the pruning tasks are skipped. Had the gate stopped working, `docker container prune` would have run and the converge would have failed on `docker: command not found`.
+The scenario also runs with `system_cleanup_docker` turned on, on a host that has no Docker at all. The role's Docker pruning is tagged `start`, and this scenario skips that tag (`--skip-tags start`), so the pruning tasks are skipped. Had the gate stopped working, `docker container prune` would have run and the converge would have failed on `docker: command not found`.
 
 ### `default-docker`
 
